@@ -18,7 +18,7 @@ int main(int argc, char*argv[]) {
   printf("Success opening socket\n");
 
   //Get Info about server
-  if (server = gethostbyname("localhost")){
+  if (server = gethostbyname("127.0.0.1")){
     printf("gethostbyname successful\n");
   }else{
     error("ERROR gethostbyname");
@@ -29,6 +29,11 @@ int main(int argc, char*argv[]) {
   server_address.sin_family = AF_INET;
   bcopy((char*)&server->h_addr, (char*)&server_address.sin_addr.s_addr, server->h_length); //copy bytes from pointer to server info
   server_address.sin_port = htons(port_number);
+
+  if(inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr) <= 0)
+      error("Invalid Address - Address not supported");
+
+  printf("%lu\n", server_address.sin_addr.s_addr);    
 
   if(connect(socket_fd, (struct sockaddr*) &server_address, sizeof(server_address)) < 0)
     error("ERROR connecting");

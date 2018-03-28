@@ -25,6 +25,7 @@ int main() {
   server_address.sin_port = htons(port_number);
   //Set IP address of server
   server_address.sin_addr.s_addr = INADDR_ANY;
+  printf("%lu ---- %lu \n", INADDR_ANY, server_address.sin_addr.s_addr);
 
   //Bind socket to address
   if(bind(socket_fd, (struct sock_addr*) &server_address, sizeof(server_address)) < 0) {
