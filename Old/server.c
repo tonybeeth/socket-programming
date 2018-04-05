@@ -3,7 +3,7 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
-#include"common.h"
+#include"PCommon.h"
 
 int main() {
   int socket_fd; //socket file descriptor
@@ -29,7 +29,7 @@ int main() {
 
   //Bind socket to address
   if(bind(socket_fd, (struct sock_addr*) &server_address, sizeof(server_address)) < 0) {
-    error("ERROR on binding");
+    printError("ERROR on binding");
   }
 
   //Listen for connections (backlog queue max limit of 5)
@@ -40,19 +40,19 @@ int main() {
   int client_length = sizeof(client_address);
   int new_socket_fd = accept(socket_fd, (struct sockaddr*) &client_address, &client_length);
   if (new_socket_fd < 0)
-    error("ERROR on accept");
+    printError("ERROR on accept");
 
   //Try reading a message from the client and printing it out
   bzero(buffer, 256);
   int msgLength = read(new_socket_fd, buffer, 255);
   if (msgLength < 0)
-    error("ERROR reading from socket");
+    printError("ERROR reading from socket");
   printf("Here is the message: %s\n", buffer);
 
   //Try writing back to client
   msgLength = write(new_socket_fd, "I got your message", 18);
   if(msgLength < 0)
-    error("ERROR on writing to socket");
+    printError("ERROR on writing to socket");
 
   return 0;
 }
