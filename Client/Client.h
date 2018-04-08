@@ -5,13 +5,15 @@
 #include <Host.h>
 #include <Server.h>
 
-class Client : public Host{
+class Client : public virtual Host{
 public:
     Client();
 
     Client(const std::string &ip, const std::string &port);
 
-    virtual void connectServer(Server *server) = 0;
+    virtual void connectServer(const std::string& ip, const std::string& port) = 0;
+
+    virtual void disconnectServer() = 0;
 };
 
 

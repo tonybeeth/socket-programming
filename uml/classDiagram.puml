@@ -1,0 +1,65 @@
+@startuml
+
+abstract class Host {
+    string ip
+    string port
+    Host()
+    Host(string ip, string port)
+    void sendMessage(string message, Host* host)
+    string receiveMessage(Host* host)
+}
+abstract class Client {
+    Client()
+    Client(string ip, string port)
+    connectServer(string ip, string port)
+    disconnectServer()
+}
+abstract class Server {
+    Server()
+    Server(string ip, string port)
+    setup()
+    connectClient()
+}
+class WHost {
+    WHost()
+    WHost(string ip, string port)
+}
+class PHost {
+    PHost()
+    PHost(string ip, string port)
+}
+class PClient {
+    PClient()
+    PClient(string ip, string port)
+}
+class PServer {
+    PServer()
+    PServer(string ip, string port)
+}
+class WClient {
+    WClient()
+    WClient(string ip, string port)
+}
+class WServer {
+    WServer()
+    WServer(string ip, string port)
+}
+
+Host <|-- Client
+Host <|-- Server
+Host <|-- WHost
+Host <|-- PHost
+
+Client <|-- PClient
+PHost <|-- PClient
+
+Server <|-- PServer
+PHost <|-- PServer
+
+Server <|-- WServer
+WHost <|-- WServer
+
+Client <|-- WClient
+WHost <|-- WClient
+
+@enduml

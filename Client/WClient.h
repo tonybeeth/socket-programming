@@ -3,45 +3,23 @@
 #define SOCKET_PROGRAMMING_WCLIENT_H
 
 #include <Client.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <memory>
+#include <WHost.h>
 
-class WClient : public Client{
+class WClient : public WHost, public Client{
 public:
 
-    WClient(const std::string &ip, const std::string &port);
+    ~WClient();
 
-    WClient();
+    void connectServer(const std::string& ip, const std::string& port) override;
 
-    virtual ~WClient();
-
-    void connectServer(Server *);
-
-    void sendMessage(const std::string &message, Server *server = nullptr);
-
-    std::string receiveMessage();
-
-    void disconnectServer();
+    void disconnectServer() override;
 
 private:
-    addrinfo* getServerInfo(Server*);
+    addrinfo* getServerInfo(const std::string& ip, const std::string& port);
 
     SOCKET createSocket(addrinfo* serverInfo);
 
     void connectSocket(SOCKET &connSocket, addrinfo* serverInfo);
-
-    void closeSocket(SOCKET &connSocket);
-
-    //Will keep reading from socket until all bytes are read
-    char* receiveBytes(int bytes, SOCKET socket);
-
-    //Will keep writing to socket until all bytes are written
-    void writeBytes(int bytes, SOCKET socket, const char* msg);
-
-    SOCKET connSocket;
-
-    void fatalError(const std::string&);
 };
 
 #endif //SOCKET_PROGRAMMING_WCLIENT_H

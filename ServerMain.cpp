@@ -1,6 +1,4 @@
-#include <stdio.h>
 #include <PServer.h>
-#include <Common.h>
 #include <rapidxml_utils.hpp>
 
 int main(){
@@ -9,6 +7,8 @@ int main(){
     rapidxml::xml_document<> doc;
     doc.parse<0>(file.data());
     auto hostNode = doc.first_node("Host");
+
+    std::string ip = hostNode->first_attribute("IP")->value(), port = hostNode->first_attribute("PORT")->value();
 
     PServer server(hostNode->first_attribute("IP")->value(), hostNode->first_attribute("PORT")->value());
 
@@ -21,6 +21,8 @@ int main(){
     printf("%s\n", msg.c_str());
 
     server.sendMessage("I got what you sent!!");
+
+
 
     return 0;
 }

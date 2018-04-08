@@ -18,8 +18,6 @@ void InitWinsock() {
     }
 }
 
-
-
 int main() {
     rapidxml::file<> file("../xml/sample.xml");
     rapidxml::xml_document<> doc;
@@ -31,7 +29,7 @@ int main() {
 
     WClient client;
 
-    client.connectServer(new Server(host->first_attribute("IP")->value(), host->first_attribute("PORT")->value()));
+    client.connectServer(host->first_attribute("IP")->value(), host->first_attribute("PORT")->value());
 
     client.sendMessage("This is a message from the Client");
 

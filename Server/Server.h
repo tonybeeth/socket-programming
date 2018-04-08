@@ -4,11 +4,17 @@
 
 #include <Host.h>
 
-class Server : public Host {
+class Server : public virtual Host {
 public:
     Server();
 
     Server(const std::string &ip, const std::string &port);
+
+    virtual void connectClient() = 0;
+
+    virtual void setup() = 0;
+
+    virtual void disconnectClient() = 0;
 };
 
 

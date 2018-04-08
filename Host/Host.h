@@ -1,4 +1,3 @@
-
 #ifndef SOCKET_PROGRAMMING_HOST_H
 #define SOCKET_PROGRAMMING_HOST_H
 
@@ -14,31 +13,23 @@ private:
     std::string port;
 
 public:
+    Host();
 
-    Host() {}
+    Host(const std::string &ip, const std::string &port);
 
-    Host(const std::string &ip, const std::string &port) : ip(ip), port(port) {}
+    const std::string &getIp() const;
 
-    const std::string &getIp() const {
-        return ip;
-    }
+    void setIp(const std::string &ip);
 
-    void setIp(const std::string &ip) {
-        Host::ip = ip;
-    }
+    const std::string &getPort() const;
 
-    const std::string &getPort() const {
-        return port;
-    }
+    void setPort(const std::string &port);
 
-    void setPort(const std::string &port) {
-        Host::port = port;
-    }
+    std::string toString();
 
-    std::string toString() {
-        return "IP: " + ip + ", PORT: " + port;
-    }
+    virtual void sendMessage(const std::string& message, const Host* host = nullptr) = 0;
 
+    virtual std::string receiveMessage(const Host* host = nullptr) = 0;
 };
 
 #endif //SOCKET_PROGRAMMING_HOST_H
