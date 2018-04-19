@@ -1,4 +1,3 @@
-
 #include "PHost.h"
 #include <memory>
 #include <unistd.h>
@@ -8,19 +7,23 @@ PHost::PHost() : Host(), connectedSocket(-1) {}
 PHost::PHost(const std::string &ip, const std::string &port) : Host(ip, port), connectedSocket(-1) {
 }
 
-void PHost::sendMessage(const std::string &message, const Host *host) {
-    auto dataSize = std::shared_ptr<BUFFER_SIZE_TYPE>(new BUFFER_SIZE_TYPE(message.size()));
+void PHost::sendMessage(const Packet* packet, const Host *host) {
     //Write size
-    writeBytes(BUFFER_MAX_SIZE, connectedSocket, (char*)dataSize.get());
-    writeBytes(*dataSize, connectedSocket, message.c_str());
+    writeBytes(sizeof(Packet), connectedSocket, packet);
+    writeBytes(packet->dataSize, connectedSocket, packet->data);
 }
 
-std::string PHost::receiveMessage(const Host *host) {
-    auto bufferSize = std::shared_ptr<BUFFER_SIZE_TYPE>((BUFFER_SIZE_TYPE*) readBytes(BUFFER_MAX_SIZE, connectedSocket));
-    auto buffer = std::shared_ptr<char>(readBytes(*bufferSize, connectedSocket));
-    return buffer.get();
+Packet* PHost::receiveMessage(const Host *host) {
+    auto packet = (Packet*)readBytes(sizeof(Packet), connectedSocket);
+    packet->data = nullptr;
+    if(packet->type != Packet::END) {
+        packet->data = readBytes(packet->dataSize, connectedSocket);
+    }
+
+    return packet;
 }
-char* PHost::readBytes(unsigned int bytes, int socket) {
+
+void* PHost::readBytes(unsigned int bytes, int socket) {
     auto buffer = new char[bytes + 1];
     buffer[bytes] = '\0';
 
@@ -38,7 +41,7 @@ char* PHost::readBytes(unsigned int bytes, int socket) {
     return buffer;
 }
 
-void PHost::writeBytes(unsigned int bytes, int socket, const char* msg) {
+void PHost::writeBytes(unsigned int bytes, int socket, const void* msg) {
     int totalBytesWritten = 0, currentBytesWritten = 0;
 
     while(totalBytesWritten < bytes) {

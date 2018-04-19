@@ -1,25 +1,24 @@
-
 #include "WHost.h"
 #include <memory>
+#include <Packet.h>
 
 WHost::WHost() : Host(), connectedSocket(INVALID_SOCKET) {}
 
 WHost::WHost(const std::string &ip, const std::string &port) : Host(ip, port), connectedSocket(INVALID_SOCKET) {}
 
-void WHost::sendMessage(const std::string &message, const Host* host) {
+void WHost::sendMessage(const Packet* packet, const Host* host) {
     //Currently, only one host can be connected at a time
     //Not working for multiple hosts
 
-    auto dataSize = std::make_shared<BUFFER_SIZE_TYPE>(message.size());
-    writeBytes(BUFFER_MAX_SIZE, connectedSocket, (char*)dataSize.get());
-    writeBytes(*dataSize, connectedSocket, message.c_str());
+    writeBytes(sizeof(Packet), connectedSocket, packet);
+    writeBytes(packet->dataSize, connectedSocket, packet->data);
 }
 
-void WHost::writeBytes(unsigned int bytes, SOCKET socket, const char* msg) {
+void WHost::writeBytes(unsigned int bytes, SOCKET socket, const void* msg) {
     int totalBytesWritten = 0, currentBytesWritten = 0;
 
     while(totalBytesWritten < bytes) {
-        currentBytesWritten = send(socket, msg, bytes, 0);
+        currentBytesWritten = send(socket, (char*)msg, bytes, 0);
         if(currentBytesWritten == SOCKET_ERROR) {
             printError("Error sending data");
             closeSocket(socket);
@@ -31,16 +30,20 @@ void WHost::writeBytes(unsigned int bytes, SOCKET socket, const char* msg) {
     }
 }
 
-std::string WHost::receiveMessage(const Host* host) {
+Packet* WHost::receiveMessage(const Host* host) {
     //Currently, only one host can be connected at a time
     //Not working for multiple hosts
 
-    auto bufferSize = std::shared_ptr<BUFFER_SIZE_TYPE>((BUFFER_SIZE_TYPE*)readBytes(BUFFER_MAX_SIZE, connectedSocket));
-    auto buffer = std::shared_ptr<char>(readBytes(*bufferSize, connectedSocket));
-    return buffer.get();
+    auto packet = (Packet*)readBytes(sizeof(Packet), connectedSocket);
+    packet->data = nullptr;
+    if(packet->type != Packet::END) {
+        packet->data = readBytes(packet->dataSize, connectedSocket);
+    }
+
+    return packet;
 }
 
-char* WHost::readBytes(unsigned int bytes, SOCKET socket) {
+void* WHost::readBytes(unsigned int bytes, SOCKET socket) {
     auto buffer = new char[bytes + 1];
     buffer[bytes] = '\0';
 

@@ -7,6 +7,8 @@
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>
 #include <WClient.h>
+#include <Service.h>
+#include <Packet.h>
 
 void InitWinsock() {
     WSADATA wsadata;
@@ -31,11 +33,25 @@ int main() {
 
     client.connectServer(host->first_attribute("IP")->value(), host->first_attribute("PORT")->value());
 
-    client.sendMessage("This is a message from the Client");
+    //std::string msg = "This is a message from the Client";
 
-    std::string msg = client.receiveMessage();
+    std::vector<double> v = {1, 2, 3, 4, 1, 4};
 
-    std::cout << msg << std::endl;
+    auto service = Service::ADD;
+    Packet* packet = new Packet;
+    packet->dataSize = sizeof(Service::ServiceType);
+    packet->data = &service;
+    packet->type = Packet::DATA;
+
+    client.sendMessage(packet);
+    packet->dataSize = v.size() * sizeof(double);
+    packet->data = v.data();
+
+    client.sendMessage(packet);
+
+    auto result = client.receiveMessage();
+
+    std::cout << "Sum is: " << *((double*)result->data) << std::endl;
 
     client.disconnectServer();
 

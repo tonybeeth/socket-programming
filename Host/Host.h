@@ -2,6 +2,7 @@
 #define SOCKET_PROGRAMMING_HOST_H
 
 #include <string>
+#include <Packet.h>
 
 #define BUFFER_SIZE_TYPE unsigned int
 #define BUFFER_MAX_SIZE sizeof(BUFFER_SIZE_TYPE)
@@ -27,9 +28,9 @@ public:
 
     std::string toString();
 
-    virtual void sendMessage(const std::string& message, const Host* host = nullptr) = 0;
+    virtual void sendMessage(const Packet* packet, const Host* host = nullptr) = 0;
 
-    virtual std::string receiveMessage(const Host* host = nullptr) = 0;
+    virtual Packet* receiveMessage(const Host* host = nullptr) = 0;
 };
 
 #endif //SOCKET_PROGRAMMING_HOST_H

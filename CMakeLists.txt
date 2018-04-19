@@ -7,8 +7,19 @@ include_directories(rapidxml)
 include_directories(Host)
 include_directories(Client)
 include_directories(Server)
-#include_directories(Common)
+include_directories(Service)
+include_directories(Packet)
 
+set(AvapiDir Vendor/AvapiCpp/Linux/Ubuntu/64bit/AVAPI/Avapi)
+include_directories(${AvapiDir})
+#find_library(AvapiLib avapi PATHS ${AvapiDir})
+#if(NOT AvapiLib)
+#    message(FATAL_ERROR "AvapiLib library not found")
+#endif()
+
+add_library(ServiceLib Service/Service.h Service/Service.cpp)
+link_directories(${AvapiDir}) #Specify directory to search for avapi library file
+target_link_libraries(ServiceLib avapi)
 #
 add_library(HostLib Host/Host.h Host/Host.cpp)
 #
@@ -30,11 +41,15 @@ target_link_libraries(WClientLib ServerLib ClientLib WHostLib WS2_32)
 add_library(PServerLib Server/PServer.h Server/PServer.cpp)
 target_link_libraries(PServerLib ServerLib ClientLib PHostLib)
 
+
 add_definitions(-DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
                 -DSHADERS_DIR=${PROJECT_SOURCE_DIR}/xml/)
 
 add_executable(server ServerMain.cpp)
-target_link_libraries(server PServerLib)
+target_link_libraries(server PServerLib ServiceLib)
 
 add_executable(client ClientMain.cpp)
 target_link_libraries(client WClientLib)
+
+#add_executable(avapiexe AvapiEx/AvapiExample.cpp)
+#target_link_libraries(avapiexe avapi)

@@ -1,8 +1,9 @@
 #include <PServer.h>
 #include <rapidxml_utils.hpp>
+#include <Service.h>
+#include <iostream>
 
 int main(){
-
     rapidxml::file<> file("../xml/sample.xml");
     rapidxml::xml_document<> doc;
     doc.parse<0>(file.data());
@@ -16,13 +17,33 @@ int main(){
 
     server.connectClient();
 
-    std::string msg = server.receiveMessage();
+    printf("Connected\n");
 
-    printf("%s\n", msg.c_str());
+    while(true) {
+        auto packet = server.receiveMessage();
+        if(packet->type == Packet::END)
+            break;
+        auto service = *((Service::ServiceType *) packet->data);
 
-    server.sendMessage("I got what you sent!!");
+        if (service == Service::ADD) {
+            printf("Add\n");
+            auto packet = server.receiveMessage();
+            auto vSize = (packet->dataSize) / sizeof(double);
+            auto data = (double *) packet->data;
+            std::vector<double> vdata(data, data + vSize);
+            std::cout << "Received Values: \n";
+            for (auto a : vdata) {
+                std::cout << a << " ";
+            }
 
+            double result = Service::add(vdata);
+            packet->dataSize = sizeof(double);
+            packet->data = &result;
+            server.sendMessage(packet);
 
+            std::cout << "\n\nCalculated sum: " << result << std::endl;
+        }
+    }
 
     return 0;
 }

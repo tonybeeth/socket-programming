@@ -9,16 +9,16 @@ public:
 
     PHost(const std::string &ip, const std::string &port);
 
-    void sendMessage(const std::string &message, const Host *host = nullptr) override;
+    void sendMessage(const Packet* packet, const Host *host = nullptr) override;
 
-    std::string receiveMessage(const Host *host = nullptr) override;
+    Packet* receiveMessage(const Host *host = nullptr) override;
 
 protected:
     int connectedSocket;
 
-    char* readBytes(unsigned int bytes, int socket);
+    void* readBytes(unsigned int bytes, int socket);
 
-    void writeBytes(unsigned int bytes, int socket, const char* msg);
+    void writeBytes(unsigned int bytes, int socket, const void* msg);
 
     void printError(const char *msg);
 

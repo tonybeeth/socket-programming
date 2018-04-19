@@ -59,5 +59,10 @@ void WClient::connectSocket(SOCKET &connSocket, addrinfo* serverInfo) {
 WClient::~WClient() = default;
 
 void WClient::disconnectServer() {
+    //Send End packet and close socket
+    Packet packet;
+    packet.type = Packet::END;
+    sendMessage(&packet);
+
     closeSocket(connectedSocket);
 }

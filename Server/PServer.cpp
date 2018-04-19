@@ -57,5 +57,10 @@ void PServer::connectClient() {
 }
 
 void PServer::disconnectClient() {
+    //Send End packet and close socket
+    Packet packet;
+    packet.type = Packet::END;
+    sendMessage(&packet);
+
     closeSocket(connectedSocket);
 }
