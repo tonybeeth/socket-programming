@@ -8,6 +8,7 @@ public:
     PacketType type;
     void* data;
     unsigned int dataSize;
+    unsigned int count;
 };
 
 

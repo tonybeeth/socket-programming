@@ -63,4 +63,5 @@ void PServer::disconnectClient() {
     sendMessage(&packet);
 
     closeSocket(connectedSocket);
+    printf("Connection Terminated with Client\n");
 }

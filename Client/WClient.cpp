@@ -65,4 +65,6 @@ void WClient::disconnectServer() {
     sendMessage(&packet);
 
     closeSocket(connectedSocket);
+
+    printf("Connection Terminated with Server\n");
 }

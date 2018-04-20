@@ -20,28 +20,52 @@ int main(){
     printf("Connected\n");
 
     while(true) {
-        auto packet = server.receiveMessage();
-        if(packet->type == Packet::END)
+        auto servicePacket = server.receiveMessage();
+        if(servicePacket->type == Packet::END) {
             break;
-        auto service = *((Service::ServiceType *) packet->data);
+        }
+        auto service = *((Service::ServiceType *) servicePacket->data);
 
-        if (service == Service::ADD) {
-            printf("Add\n");
-            auto packet = server.receiveMessage();
-            auto vSize = (packet->dataSize) / sizeof(double);
-            auto data = (double *) packet->data;
-            std::vector<double> vdata(data, data + vSize);
-            std::cout << "Received Values: \n";
-            for (auto a : vdata) {
+        auto recvPacket = server.receiveMessage();
+        auto dataPacket = new Packet;
+
+        if (service == Service::ADD or service == Service::SUBTRACT or service == Service::MULTIPLY) {
+            auto data = (double*) recvPacket->data;
+            std::vector<double> vdata(data, data + recvPacket->count);
+            printf("Received Values: ");
+            for (auto &a : vdata) {
                 std::cout << a << " ";
             }
 
-            double result = Service::add(vdata);
-            packet->dataSize = sizeof(double);
-            packet->data = &result;
-            server.sendMessage(packet);
+            double result;
+            if(service == Service::ADD) {
+                result = Service::add(vdata);
+                printf("Addition\n");
+            }
+            else if(service == Service::SUBTRACT) {
+                result = Service::subtract(vdata);
+                printf("Subtraction\n");
+            }
+            else {
+                result = Service::multiply(vdata);
+                printf("Multiplication\n");
+            }
 
-            std::cout << "\n\nCalculated sum: " << result << std::endl;
+            printf("Calculated Result: %f\n", result);
+            dataPacket->dataSize = sizeof(double);
+            dataPacket->data = &result;
+            server.sendMessage(dataPacket);
+        }
+        else if (service == Service::STOCK_INFO) {
+            printf("Stock Info\n");
+            std::string stockSymbol((char*)recvPacket->data, recvPacket->dataSize);
+            printf("Stock symbol:\n%s\n", stockSymbol.c_str());
+            auto stockInfo = Service::getStockInfo(stockSymbol);
+            printf("Stock Information: %s\n", stockInfo.c_str());
+            dataPacket->data = (char*)stockInfo.c_str();
+            dataPacket->dataSize = stockInfo.length();
+            dataPacket->count = 1;
+            server.sendMessage(dataPacket);
         }
     }
 
