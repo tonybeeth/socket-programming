@@ -1,3 +1,6 @@
 [submodule "Vendor/AvapiCpp"]
 	path = Vendor/AvapiCpp
 	url = https://github.com/AvapiDotNet/AvapiCpp.git
+[submodule "Vendor/selene"]
+	path = Vendor/selene
+	url = https://github.com/kmhofmann/selene.git
