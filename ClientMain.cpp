@@ -36,7 +36,6 @@ int main() {
     std::string serverPort = host->first_attribute("PORT")->value();
 
     client.connectServer(serverIP, serverPort);
-    printf("\nConnected to Server. IP: %s, Port: %s\n", serverIP.c_str(), serverPort.c_str());
 
     //Create service and data packets
     auto servicePacket = new Packet;
@@ -180,6 +179,7 @@ Service::ServiceType getServiceOption() {
         printf("Enter Service Option: ");
         std::cin >> option;
     }
+    printf("\n");
 
     return serviceTypes[option];
 }

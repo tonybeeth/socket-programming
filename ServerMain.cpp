@@ -17,8 +17,6 @@ int main(){
 
     server.connectClient();
 
-    printf("Connected\n");
-
     while(true) {
 		printf("\n");
         auto servicePacket = server.receiveMessage();

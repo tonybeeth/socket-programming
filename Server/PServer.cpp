@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <string>
 #include <cstring>
 #include <memory>
@@ -54,6 +55,8 @@ void PServer::connectClient() {
 
     this->connectedSocket = connectedSocket;
     //return Client(std::to_string(clientAddress.sin_addr.s_addr), std::to_string(clientAddress.sin_port));
+    std::string clientIP = inet_ntoa(clientAddress.sin_addr);
+    printf("\nConnected to Client. IP: %s\n", clientIP.c_str());
 }
 
 void PServer::disconnectClient() {

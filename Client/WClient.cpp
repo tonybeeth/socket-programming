@@ -33,6 +33,8 @@ void WClient::connectServer(const std::string& ip, const std::string& port) {
 
     //Update current connected socket
     this->connectedSocket = connSocket;
+
+    printf("\nConnected to Server. IP: %s, Port: %s\n", ip.c_str(), port.c_str());
 }
 
 SOCKET WClient::createSocket(addrinfo* serverInfo) {
