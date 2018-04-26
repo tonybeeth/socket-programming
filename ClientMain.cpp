@@ -20,6 +20,8 @@ std::vector<double> getNumbers();
 
 std::string getStockSymbol();
 
+std::string getPathToImage();
+
 int main() {
     rapidxml::file<> file("../xml/sample.xml");
     rapidxml::xml_document<> doc;
@@ -48,7 +50,7 @@ int main() {
         //Set service option and send service packet
         servicePacket->data = &serviceOption;
         client.sendMessage(servicePacket);
-        Packet* recvPacket;
+        Packet* recvPacket = NULL;
 
         switch (serviceOption) {
             case Service::INVALID:
@@ -67,25 +69,63 @@ int main() {
             }
             case Service::STOCK_INFO: {
                 auto stockSymbol = getStockSymbol();
-                /*dataPacket->dataSize = std::accumulate(stockSymbols.begin(), stockSymbols.end(), (unsigned int)0,
-                    [](int sum, const std::string& str){ return sum + sizeof(std::string) + str.length(); });*/
                 dataPacket->dataSize = stockSymbol.length();
                 dataPacket->data = (void*) stockSymbol.data();
                 dataPacket->count = stockSymbol.length();
                 client.sendMessage(dataPacket);
                 recvPacket = client.receiveMessage();
-                //printf("Returned Value: %f\n", *((double*)recvPacket->data));
                 printf("Stock Information:\n%s\n", recvPacket->data);
                 break;
             }
+            case Service::CONVERT_IMAGE: {
+                auto filename = getPathToImage();
+                std::ifstream infile(filename, std::ios_base::binary);
+                if(!infile) {
+                    fprintf(stderr, "Error opening image file: %s\n", filename.c_str());
+					client.disconnectServer();
+                    break;
+                }
+				std::string imageData;
+                infile.seekg(0, std::ios::end);
+                imageData.reserve(infile.tellg());
+                infile.seekg(0, std::ios::beg);
+
+                imageData.assign((std::istreambuf_iterator<char>(infile)),
+                            std::istreambuf_iterator<char>());
+
+				printf("Image size: %f KBs\n", imageData.size() / 1024.0);
+                infile.close();
+
+                dataPacket->data = (void*)imageData.c_str();
+                dataPacket->dataSize = imageData.size();
+                client.sendMessage(dataPacket);
+                recvPacket = client.receiveMessage();
+                std::string grayImageName = "grayImage.png";
+                std::ofstream outFile(grayImageName, std::ios_base::binary);
+                outFile.write((const char*)recvPacket->data, recvPacket->dataSize);
+                outFile.close();
+                printf("Gray Image saved to %s\n", grayImageName.c_str());
+                break;
+            }
         }
+		delete recvPacket;
     }
 
-    client.disconnectServer();
+	delete dataPacket;
+	delete servicePacket;
+	
+	client.disconnectServer();
 
     WSACleanup();
 
     return 0;
+}
+
+std::string getPathToImage() {
+    printf("Enter relative path to Image: ");
+    std::string imagePath;
+    std::cin >> imagePath;
+    return imagePath;
 }
 
 std::string getStockSymbol() {
@@ -120,22 +160,24 @@ std::vector<double> getNumbers() {
 }
 
 Service::ServiceType getServiceOption() {
-    printf("Service Options:\n");
+    printf("\n\nService Options:\n");
     printf("1 - Sum Numbers\n");
     printf("2 - Subtract Numbers\n");
     printf("3 - Multiply Numbers\n");
     printf("4 - Get Stock Info\n");
+    printf("5 - Convert Image to gray scale\n");
     printf("0 - Quit\n");
 
     std::vector<Service::ServiceType> serviceTypes =
             {Service::INVALID, Service::ADD, Service::SUBTRACT, Service::MULTIPLY,
-             Service::STOCK_INFO};
+             Service::STOCK_INFO, Service::CONVERT_IMAGE};
 
     int option = serviceTypes.size() + 1;
-    for (auto i = 0; option < 0 or option > serviceTypes.size(); ++i) {
+    for (auto i = 0; option < 0 || option > serviceTypes.size(); ++i) {
         if(i > 0) {
-            printf("\nInvalid option entered\nEnter Service Option:");
+            printf("\nInvalid option entered\n");
         }
+        printf("Enter Service Option: ");
         std::cin >> option;
     }
 

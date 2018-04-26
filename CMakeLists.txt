@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(socket_programming)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+
+add_subdirectory(Vendor/selene)
+include_directories(Vendor/selene/src)
 
 include_directories(rapidxml)
 include_directories(Host)
@@ -19,7 +22,7 @@ include_directories(${AvapiDir})
 
 add_library(ServiceLib Service/Service.h Service/Service.cpp)
 link_directories(${AvapiDir}) #Specify directory to search for avapi library file
-target_link_libraries(ServiceLib avapi)
+target_link_libraries(ServiceLib avapi selene)
 #
 add_library(HostLib Host/Host.h Host/Host.cpp)
 #
@@ -50,6 +53,3 @@ target_link_libraries(server PServerLib ServiceLib)
 
 add_executable(client ClientMain.cpp)
 target_link_libraries(client WClientLib)
-
-#add_executable(avapiexe AvapiEx/AvapiExample.cpp)
-#target_link_libraries(avapiexe avapi)

@@ -4,6 +4,12 @@
 #include <AvapiConnection.hpp>
 #include <TIME_SERIES/TIME_SERIES_DAILY.hpp>
 #include <sstream>
+#include <selene/img/ImageConversions.hpp>
+#include <selene/img/ImageToImageData.hpp>
+#include <selene/img/IO.hpp>
+#include <selene/io/MemoryReader.hpp>
+#include <selene/io/VectorWriter.hpp>
+#include <selene/img/ImageDataToImage.hpp>
 
 double Service::add(std::vector<double>& numbers) {
     return std::accumulate(numbers.begin(), numbers.end(), 0.0);
@@ -15,6 +21,18 @@ double Service::multiply(std::vector<double> &numbers) {
 
 double Service::subtract(std::vector<double>& numbers) {
     return std::accumulate(numbers.begin(), numbers.end(), 0.0, std::minus<double>());
+}
+
+//Can only convert png images
+std::vector<uint8_t> Service::convertImageToGrayScale(const void* data, int dataSize) {
+    auto imageData = sln::read_image(sln::MemoryReader((const uint8_t*)data, dataSize));
+    auto image = sln::to_image_view<sln::Pixel_8u4>(imageData);
+    auto grayImage = sln::convert_image<sln::PixelFormat::RGBA, sln::PixelFormat::Y>(image);
+    auto grayImageData = sln::to_image_data_view(grayImage, sln::PixelFormat::Y);
+    std::vector<uint8_t> grayImageVector;
+    sln::write_image(grayImageData, sln::ImageFormat::PNG, sln::VectorWriter(grayImageVector));
+
+    return grayImageVector;
 }
 
 std::string Service::getStockInfo(const std::string &stockSymbol) {

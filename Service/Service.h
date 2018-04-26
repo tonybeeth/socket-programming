@@ -8,7 +8,7 @@ class Service {
 
 public:
 
-    enum ServiceType {INVALID, ADD, MULTIPLY, SUBTRACT, STOCK_INFO};
+    enum ServiceType {INVALID, ADD, MULTIPLY, SUBTRACT, STOCK_INFO, CONVERT_IMAGE};
 
     static double add(std::vector<double>& numbers);
 
@@ -17,6 +17,8 @@ public:
     static double subtract(std::vector<double>& numbers);
 
     static std::string getStockInfo(const std::string& stockSymbol);
+
+    static std::vector<uint8_t> convertImageToGrayScale(const void* data, int dataSize);
 };
 
 

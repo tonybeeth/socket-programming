@@ -20,6 +20,7 @@ int main(){
     printf("Connected\n");
 
     while(true) {
+		printf("\n");
         auto servicePacket = server.receiveMessage();
         if(servicePacket->type == Packet::END) {
             break;
@@ -29,7 +30,7 @@ int main(){
         auto recvPacket = server.receiveMessage();
         auto dataPacket = new Packet;
 
-        if (service == Service::ADD or service == Service::SUBTRACT or service == Service::MULTIPLY) {
+        if (service == Service::ADD || service == Service::SUBTRACT || service == Service::MULTIPLY) {
             auto data = (double*) recvPacket->data;
             std::vector<double> vdata(data, data + recvPacket->count);
             printf("Received Values: ");
@@ -67,6 +68,19 @@ int main(){
             dataPacket->count = 1;
             server.sendMessage(dataPacket);
         }
+        else { //Grayscale Image
+			printf("Converting Image to Grayscale: %f KBs.\n", recvPacket->dataSize / 1024.0);
+            auto grayImageVector = Service::convertImageToGrayScale(recvPacket->data, recvPacket->dataSize);
+            dataPacket->data = grayImageVector.data();
+            dataPacket->dataSize = grayImageVector.size();
+            dataPacket->count = 1;
+            server.sendMessage(dataPacket);
+            printf("Image Converted.\n");
+        }
+
+		delete servicePacket;
+		delete recvPacket;
+		delete dataPacket;
     }
 
     return 0;
